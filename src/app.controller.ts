@@ -1,12 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+@Controller('protected')
+export class ProtectedController {
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @UseGuards(AuthGuard('keycloak'))
+  getProtectedResource() {
+    return 'This is a protected resource';
   }
 }
