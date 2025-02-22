@@ -1,164 +1,105 @@
-Ecco un esempio di file `README.md` per il tuo progetto NestJS con Docker, che include tutte le istruzioni necessarie per configurare, eseguire e testare il server.
+# NestJS Auth Server with Keycloak and MySQL
 
----
+This project is a NestJS-based authentication server that integrates with Keycloak for OAuth2 and JWT-based authentication. It uses MySQL as the database.
 
-# NestJS OAuth2 Server with Docker
+## Prerequisites
 
-Questo progetto è un server NestJS che gestisce l'autenticazione OAuth2 e restituisce un token e un refresh token. Il server è containerizzato utilizzando Docker.
+- Docker
+- Docker Compose
 
-## Prerequisiti
+## Setup
 
-- **Node.js**: Versione 18.x o superiore.
-- **Docker**: Installato e configurato correttamente.
-- **Docker Compose**: Installato e configurato correttamente.
-
-## Installazione
-
-1. Clona il repository:
+1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/tuo-username/nestjs-oauth2-server.git
-   cd nestjs-oauth2-server
+   git clone https://github.com/your-username/nest-auth-server.git
+   cd nest-auth-server
    ```
 
-2. Installa le dipendenze:
+2. **Set up environment variables:**
 
-   ```bash
-   npm install
-   ```
-
-## Configurazione
-
-1. Configura le variabili d'ambiente:
-
-   Crea un file `.env` nella root del progetto e aggiungi le seguenti variabili:
+   Create a `.env` file in the root directory with the following content:
 
    ```env
-   CLIENT_ID=your_client_id
-   CLIENT_SECRET=your_client_secret
-   JWT_SECRET=your_jwt_secret_key
-   OAUTH2_AUTHORIZATION_URL=https://your-oauth2-provider.com/auth
-   OAUTH2_TOKEN_URL=https://your-oauth2-provider.com/token
-   CALLBACK_URL=http://localhost:3000/auth/callback
+   DB_HOST=db
+   DB_PORT=3306
+   DB_USERNAME=user
+   DB_PASSWORD=password
+   DB_DATABASE=nest_auth
+   KEYCLOAK_URL=http://keycloak:8080/auth
+   KEYCLOAK_REALM=your_realm
+   KEYCLOAK_CLIENT_ID=your_client_id
+   KEYCLOAK_CLIENT_SECRET=your_client_secret
+   KEYCLOAK_PUBLIC_KEY=your_public_key
    ```
 
-   Sostituisci i valori con quelli corretti per il tuo provider OAuth2.
+3. **Start the application:**
 
-## Esecuzione con Docker
-
-1. Costruisci l'immagine Docker:
+   Run the following command to start the Docker containers:
 
    ```bash
-   docker-compose build
+   docker-compose up --build
    ```
 
-2. Avvia il container:
+   This will start:
+   - A MySQL database.
+   - A Keycloak server for authentication.
+   - The NestJS application.
 
-   ```bash
-   docker-compose up
-   ```
+4. **Access the services:**
 
-   Il server sarà disponibile all'indirizzo `http://localhost:3000`.
+   - **NestJS API:** `http://localhost:3000`
+   - **Keycloak Admin Console:** `http://localhost:8080`
+     - Username: `admin`
+     - Password: `admin`
 
-## Esecuzione senza Docker
+## API Endpoints
 
-1. Avvia il server in modalità sviluppo:
+- **POST /auth/login**: Authenticate a user and return a JWT token.
+  - Request Body:
+    ```json
+    {
+      "username": "your_username",
+      "password": "your_password"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ...",
+      "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ..."
+    }
+    ```
 
-   ```bash
-   npm run start:dev
-   ```
+- **GET /auth/profile**: Get the user profile (requires a valid JWT token).
+  - Headers:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+  - Response:
+    ```json
+    {
+      "userId": "123",
+      "username": "your_username",
+      "roles": ["user"]
+    }
+    ```
 
-   Il server sarà disponibile all'indirizzo `http://localhost:3000`.
+## Stopping the Application
 
-## Endpoint
+To stop the application, run:
 
-### `/auth/login`
+```bash
+docker-compose down
+```
 
-- **Metodo**: GET
-- **Descrizione**: Avvia il processo di autenticazione OAuth2. Reindirizza l'utente al provider OAuth2 per l'autenticazione.
+## License
 
-### `/auth/callback`
-
-- **Metodo**: GET
-- **Descrizione**: Gestisce la callback dal provider OAuth2 e restituisce un token e un refresh token.
-
-   **Risposta**:
-
-   ```json
-   {
-     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-     "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-   }
-   ```
-
-## Test
-
-Puoi testare l'endpoint `/auth/login` utilizzando un browser o uno strumento come `curl` o Postman.
-
-1. Apri il browser e vai a:
-
-   ```
-   http://localhost:3000/auth/login
-   ```
-
-2. Completa il processo di autenticazione con il provider OAuth2.
-
-3. Dopo l'autenticazione, verrai reindirizzato a `/auth/callback` e riceverai i token.
-
-## Sviluppo
-
-### Struttura del progetto
-
-- `src/auth`: Contiene il modulo di autenticazione, inclusi controller, servizi e strategie.
-- `src/main.ts`: Punto di ingresso dell'applicazione.
-- `Dockerfile`: Configurazione per il container Docker.
-- `docker-compose.yml`: Configurazione per Docker Compose.
-
-### Comandi utili
-
-- **Avvia il server in modalità sviluppo**:
-
-  ```bash
-  npm run start:dev
-  ```
-
-- **Esegui i test**:
-
-  ```bash
-  npm run test
-  ```
-
-- **Lint del codice**:
-
-  ```bash
-  npm run lint
-  ```
-
-- **Formatta il codice**:
-
-  ```bash
-  npm run format
-  ```
-
-## Contribuire
-
-Se desideri contribuire al progetto, segui questi passaggi:
-
-1. Fork del repository.
-2. Crea un nuovo branch (`git checkout -b feature/nuova-funzionalità`).
-3. Fai commit delle tue modifiche (`git commit -am 'Aggiungi nuova funzionalità'`).
-4. Push del branch (`git push origin feature/nuova-funzionalità`).
-5. Crea una Pull Request.
-
-## Licenza
-
-Questo progetto è rilasciato sotto la licenza MIT. Vedi il file [LICENSE](LICENSE) per ulteriori dettagli.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```
 
 ---
 
-### Note aggiuntive
+### Conclusione
 
-- Assicurati di sostituire i valori di esempio (come `your_client_id`, `your_client_secret`, ecc.) con quelli corretti per il tuo provider OAuth2.
-- Se utilizzi un provider OAuth2 diverso (ad esempio, Google, Facebook, GitHub), dovrai configurare le URL e i parametri di autenticazione di conseguenza.
-
-Questo `README.md` fornisce una guida completa per configurare, eseguire e testare il tuo server NestJS con Docker. Puoi personalizzarlo ulteriormente in base alle tue esigenze specifiche.
+Ora hai tutto il necessario per avviare il progetto e documentarlo correttamente. Se hai bisogno di ulteriori chiarimenti o modifiche, fammi sapere! 😊
