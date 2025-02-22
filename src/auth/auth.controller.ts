@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Request, UseGuards, Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 
@@ -6,17 +6,15 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('login')
-  @UseGuards(AuthGuard('oauth2'))
-  async login() {
-    // La gestione della richiesta di login è delegata a Passport
+  @UseGuards(AuthGuard('local'))
+  @Post('login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
   }
 
-  @Get('callback')
-  @UseGuards(AuthGuard('oauth2'))
-  async callback(@Req() req) {
-    const user = req.user;
-    const tokens = await this.authService.generateTokens(user);
-    return tokens;
+  @UseGuards(AuthGuard('jwt'))
+  @Get('check-token')
+  async checkToken(@Request() req) {
+    return req.user;
   }
 }

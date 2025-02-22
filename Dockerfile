@@ -1,20 +1,20 @@
-# Usa l'immagine ufficiale di Node.js
-FROM node:16
+# Usa un'immagine Node.js come base
+FROM node:18
 
 # Imposta la directory di lavoro
 WORKDIR /app
 
-# Copia i file di progetto
-COPY package*.json ./
+# Copia i file di configurazione del progetto
+COPY package.json yarn.lock* ./
 
 # Installa le dipendenze
-RUN npm install
+RUN yarn install
 
-# Copia il resto del codice
+# Copia tutto il codice sorgente
 COPY . .
 
-# Esponi la porta 3000
+# Esponi la porta su cui gira il server
 EXPOSE 3000
 
-# Avvia l'applicazione
-CMD ["npm", "run", "start:prod"]
+# Avvia il server
+CMD ["yarn", "start:dev"]
