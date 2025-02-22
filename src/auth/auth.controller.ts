@@ -1,15 +1,19 @@
-import { Controller, Post, Request, UseGuards, Get } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, Body, UnauthorizedException, Request, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Body('username') username: string, @Body('password') password: string) {
+    const user = await this.authService.validateUser(username, password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return this.authService.login(username, password);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -17,4 +21,9 @@ export class AuthController {
   async checkToken(@Request() req) {
     return req.user;
   }
+
 }
+
+
+
+

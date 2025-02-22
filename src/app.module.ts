@@ -7,8 +7,8 @@ import { User } from './user/user.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Rende le variabili d'ambiente disponibili in tutto il progetto
-      envFilePath: '.env', // Specifica il file .env da cui caricare le variabili
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -18,7 +18,7 @@ import { User } from './user/user.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [User],
-      synchronize: true, // Usa `false` in produzione
+      synchronize: true,
     }),
     AuthModule,
   ],

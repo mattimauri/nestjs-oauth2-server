@@ -1,21 +1,25 @@
-import { Strategy } from 'passport-keycloak';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
   constructor() {
     super({
-      clientID: 'YOUR_CLIENT_ID',
-      clientSecret: 'YOUR_CLIENT_SECRET',
-      callbackURL: 'YOUR_CALLBACK_URL',
-      authServerURL: 'YOUR_AUTH_SERVER_URL',
-      realm: 'YOUR_REALM',
-      redirectUri: 'YOUR_REDIRECT_URI',
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.KEYCLOAK_PUBLIC_KEY, // Usa la chiave pubblica di Keycloak
+      issuer: process.env.KEYCLOAK_URL, // URL di Keycloak
+      audience: process.env.KEYCLOAK_CLIENT_ID, // Client ID di Keycloak
     });
   }
 
-  validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
-    done(null, profile);
+  async validate(payload: any) {
+    // Qui puoi aggiungere logica aggiuntiva per validare l'utente
+    return {
+      userId: payload.sub,
+      username: payload.preferred_username,
+      roles: payload.realm_access?.roles || [],
+    };
   }
 }

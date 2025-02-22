@@ -14,20 +14,35 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  keycloak:
+    image: jboss/keycloak:latest
+    container_name: keycloak
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: mysql
+      DB_ADDR: db
+      DB_DATABASE: nest_auth
+      DB_USER: user
+      DB_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
   app:
     build: .
     container_name: nest_app
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USERNAME: user
-      DB_PASSWORD: password
-      DB_DATABASE: nest_auth
-      JWT_SECRET: your_secret_key
+      KEYCLOAK_URL: http://keycloak:8080/auth
+      KEYCLOAK_REALM: your_realm
+      KEYCLOAK_CLIENT_ID: your_client_id
+      KEYCLOAK_CLIENT_SECRET: your_client_secret
     depends_on:
       - db
+      - keycloak
     volumes:
       - .:/app
       - /app/node_modules
